@@ -1,0 +1,9 @@
+// .eslintrc.json
+{
+  "extends": ["next/core-web-vitals", "eslint:recommended"],
+  "rules": {
+    "@next/next/no-html-link-for-pages": "off",
+    "react/jsx-key": "warn",
+    "react/react-in-jsx-scope": "off"
+  }
+}
