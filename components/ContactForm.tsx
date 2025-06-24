@@ -1,42 +1,38 @@
-"use client";
-import { useRef, useState } from "react";
+'use client';
+import { useRef, useState } from 'react';
 
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  function validateEmail(email: string) {
-    return /^[^@]+@[^@]+\.[^@]+$/.test(email);
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSuccess(null);
     setError(null);
-    setLoading(true);
+    setSuccess(null);
+    setSubmitting(true);
     const form = formRef.current;
     if (!form) return;
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
-    const message = (form.elements.namedItem("message") as HTMLTextAreaElement).value.trim();
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+    const message = (form.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
     let valid = true;
     if (name.length < 2) valid = false;
-    if (!validateEmail(email)) valid = false;
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) valid = false;
     if (message.length < 2) valid = false;
     if (!valid) {
-      setError("Please fill out all fields correctly.");
-      setLoading(false);
+      setError('Please fill out all fields correctly.');
+      setSubmitting(false);
       return;
     }
-    // Simulate async submission
-    await new Promise(res => setTimeout(res, 900));
-    setSuccess("Thank you! Your message was sent.");
-    form.reset();
-    setLoading(false);
-    setTimeout(() => setSuccess(null), 3500);
-  }
+    setTimeout(() => {
+      setSuccess('Thank you! Your message was sent.');
+      setSubmitting(false);
+      form.reset();
+      setTimeout(() => setSuccess(null), 3500);
+    }, 800);
+  };
 
   return (
     <form
@@ -45,26 +41,27 @@ export default function ContactForm() {
       autoComplete="off"
       noValidate
       onSubmit={handleSubmit}
+      aria-label="Contact form"
     >
       {success && (
-        <div className="form-success" style={{ display: "block" }}>{success}</div>
+        <div className="form-success" style={{ display: 'block', background: 'var(--primary-light)', color: 'var(--primary-dark)', border: '1px solid var(--primary)' }}>{success}</div>
       )}
       {error && (
-        <div className="form-success" style={{ display: "block", background: "#fee2e2", color: "#b91c1c", border: "1px solid #b91c1c" }}>{error}</div>
+        <div className="form-success" style={{ display: 'block', background: '#fee2e2', color: '#b91c1c', border: '1px solid #b91c1c' }}>{error}</div>
       )}
       <div>
         <label htmlFor="name">Name</label>
-        <input name="name" id="name" type="text" required minLength={2} maxLength={50} placeholder="Your Name" disabled={loading} />
+        <input name="name" id="name" type="text" required minLength={2} maxLength={50} placeholder="Your Name" disabled={submitting} />
       </div>
       <div>
         <label htmlFor="email">Email</label>
-        <input name="email" id="email" type="email" required maxLength={80} placeholder="you@email.com" disabled={loading} />
+        <input name="email" id="email" type="email" required maxLength={80} placeholder="you@email.com" disabled={submitting} />
       </div>
       <div>
         <label htmlFor="message">Message</label>
-        <textarea name="message" id="message" rows={4} required maxLength={500} placeholder="Your message" disabled={loading}></textarea>
+        <textarea name="message" id="message" rows={4} required maxLength={500} placeholder="Your message" disabled={submitting}></textarea>
       </div>
-      <button type="submit" disabled={loading}>{loading ? "Sending..." : "Send Message"}</button>
+      <button type="submit" disabled={submitting}>{submitting ? 'Sending…' : 'Send Message'}</button>
     </form>
   );
 }
